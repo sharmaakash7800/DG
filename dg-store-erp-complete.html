@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="DG Store - Complete ERP System">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DG Store ERP">
+    
+    <title>DG Store - Complete ERP System</title>
+    
+    <link rel="manifest" id="manifest-placeholder">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏪</text></svg>">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 24px var(--shadow);
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 32px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .logo-icon {
+            font-size: 36px;
+        }
+        
+        .store-name {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .store-subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 24px 16px;
+        }
+        
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+            padding: 0 16px 8px;
+            font-weight: 600;
+        }
+        
+        .nav-item {
+            margin-bottom: 4px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: left;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: inherit;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(4px);
+        }
+        
+        .nav-button.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            padding: 0 20px;
+            z-index: 99;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            color: var(--text);
+        }
+        
+        .mobile-title {
+            flex: 1;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .page-title-section {
+            flex: 1;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+        
+        .page-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px var(--shadow);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            opacity: 0.8;
+        }
+        
+        .stat-trend {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .trend-up {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .trend-down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            font-family: 'Inter', monospace;
+            letter-spacing: -1px;
+            color: var(--primary);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid;
+        }
+        
+        .alert-icon {
+            font-size: 24px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: var(--success);
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: var(--warning);
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: var(--info);
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: var(--danger);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        
+        tbody tr {
+            transition: background 0.2s;
+        }
+        
+        tbody tr:hover {
+            background: var(--bg);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-secondary {
+            background: var(--border);
+            color: var(--text-muted);
+        }
+        
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .empty-state-text {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .file-upload-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--success);
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-upload-label:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+            font-family: inherit;
+        }
+        
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab:hover {
+            color: var(--text);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .mobile-header {
+                display: flex;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                margin-top: 64px;
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .stat-card {
+                padding: 16px;
+            }
+            
+            .stat-value {
+                font-size: 28px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+            
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+        
+        @supports (-webkit-touch-callout: none) {
+            body {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // PWA Manifest
+        const manifestData = {
+            name: "DG Store ERP System",
+            short_name: "DG ERP",
+            description: "Complete Enterprise Resource Planning System",
+            start_url: "./",
+            display: "standalone",
+            background_color: "#0f172a",
+            theme_color: "#0f172a",
+            icons: [{
+                src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏪</text></svg>",
+                sizes: "512x512",
+                type: "image/svg+xml"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
+
+        // Storage Keys
+        const KEYS = {
+            products: 'erp_products',
+            sales: 'erp_sales',
+            purchases: 'erp_purchases',
+            customers: 'erp_customers',
+            suppliers: 'erp_suppliers',
+            expenses: 'erp_expenses',
+            payments: 'erp_payments'
+        };
+        
+        const save = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+        const load = (key, def = []) => {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : def;
+        };
+
+        // Main App
+        function App() {
+            const [currentPage, setCurrentPage] = useState('dashboard');
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            
+            const [products, setProducts] = useState([]);
+            const [sales, setSales] = useState([]);
+            const [purchases, setPurchases] = useState([]);
+            const [customers, setCustomers] = useState([]);
+            const [suppliers, setSuppliers] = useState([]);
+            const [expenses, setExpenses] = useState([]);
+
+            useEffect(() => {
+                setProducts(load(KEYS.products));
+                setSales(load(KEYS.sales));
+                setPurchases(load(KEYS.purchases));
+                setCustomers(load(KEYS.customers));
+                setSuppliers(load(KEYS.suppliers));
+                setExpenses(load(KEYS.expenses));
+            }, []);
+
+            useEffect(() => { if (products.length > 0) save(KEYS.products, products); }, [products]);
+            useEffect(() => { if (sales.length > 0) save(KEYS.sales, sales); }, [sales]);
+            useEffect(() => { if (purchases.length > 0) save(KEYS.purchases, purchases); }, [purchases]);
+            useEffect(() => { if (customers.length > 0) save(KEYS.customers, customers); }, [customers]);
+            useEffect(() => { if (suppliers.length > 0) save(KEYS.suppliers, suppliers); }, [suppliers]);
+            useEffect(() => { if (expenses.length > 0) save(KEYS.expenses, expenses); }, [expenses]);
+
+            const menuItems = [
+                { section: 'Overview', items: [
+                    { id: 'dashboard', icon: '📊', label: 'Dashboard' }
+                ]},
+                { section: 'Operations', items: [
+                    { id: 'products', icon: '📦', label: 'Products' },
+                    { id: 'sales', icon: '💰', label: 'Sales' },
+                    { id: 'purchases', icon: '🛒', label: 'Purchases' }
+                ]},
+                { section: 'Contacts', items: [
+                    { id: 'customers', icon: '👥', label: 'Customers' },
+                    { id: 'suppliers', icon: '🏭', label: 'Suppliers' }
+                ]},
+                { section: 'Finance', items: [
+                    { id: 'accounts', icon: '💵', label: 'Accounts' },
+                    { id: 'reports', icon: '📈', label: 'Reports' }
+                ]},
+                { section: 'System', items: [
+                    { id: 'backup', icon: '💾', label: 'Backup' }
+                ]}
+            ];
+
+            return (
+                <div className="app-container">
+                    <div className="mobile-header">
+                        <button className="menu-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                            {sidebarOpen ? '✕' : '☰'}
+                        </button>
+                        <div className="mobile-title">DG Store ERP</div>
+                        <div style={{width: '40px'}}></div>
+                    </div>
+
+                    <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+                        <div className="sidebar-header">
+                            <div className="logo-container">
+                                <div className="logo-icon">🏪</div>
+                                <div>
+                                    <div className="store-name">DG Store</div>
+                                    <div className="store-subtitle">ERP System</div>
+                                </div>
+                            </div>
+                        </div>
+                        <nav>
+                            <ul className="nav-menu">
+                                {menuItems.map(section => (
+                                    <div key={section.section} className="nav-section">
+                                        <div className="nav-section-title">{section.section}</div>
+                                        {section.items.map(item => (
+                                            <li key={item.id} className="nav-item">
+                                                <button 
+                                                    className={`nav-button ${currentPage === item.id ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        setCurrentPage(item.id);
+                                                        setSidebarOpen(false);
+                                                    }}
+                                                >
+                                                    <span className="nav-icon">{item.icon}</span>
+                                                    {item.label}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </div>
+                                ))}
+                            </ul>
+                        </nav>
+                    </aside>
+
+                    <main className="main-content">
+                        {currentPage === 'dashboard' && <Dashboard products={products} sales={sales} purchases={purchases} customers={customers} suppliers={suppliers} expenses={expenses} />}
+                        {currentPage === 'products' && <Products products={products} setProducts={setProducts} />}
+                        {currentPage === 'sales' && <Sales products={products} sales={sales} setSales={setSales} setProducts={setProducts} customers={customers} />}
+                        {currentPage === 'purchases' && <Purchases products={products} purchases={purchases} setPurchases={setPurchases} setProducts={setProducts} suppliers={suppliers} />}
+                        {currentPage === 'customers' && <Customers customers={customers} setCustomers={setCustomers} sales={sales} />}
+                        {currentPage === 'suppliers' && <Suppliers suppliers={suppliers} setSuppliers={setSuppliers} purchases={purchases} />}
+                        {currentPage === 'accounts' && <Accounts sales={sales} purchases={purchases} expenses={expenses} setExpenses={setExpenses} />}
+                        {currentPage === 'reports' && <Reports products={products} sales={sales} purchases={purchases} expenses={expenses} />}
+                        {currentPage === 'backup' && <Backup products={products} sales={sales} purchases={purchases} customers={customers} suppliers={suppliers} expenses={expenses} setProducts={setProducts} setSales={setSales} setPurchases={setPurchases} setCustomers={setCustomers} setSuppliers={setSuppliers} setExpenses={setExpenses} />}
+                    </main>
+                </div>
+            );
+        }
+
+        // Dashboard
+        function Dashboard({ products, sales, purchases, customers, suppliers, expenses }) {
+            const totalProducts = products.length;
+            const totalStock = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+            const lowStockItems = products.filter(p => p.quantity <= (p.reorderLevel || 5)).length;
+            const outOfStock = products.filter(p => p.quantity === 0).length;
+            
+            const todaysSales = sales.filter(s => {
+                const saleDate = new Date(s.date);
+                const today = new Date();
+                return saleDate.toDateString() === today.toDateString();
+            }).reduce((sum, s) => sum + s.total, 0);
+            
+            const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
+            const totalPurchases = purchases.reduce((sum, p) => sum + p.total, 0);
+            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+            
+            const grossProfit = totalSales - totalPurchases - totalExpenses;
+            
+            const recentSales = sales.slice(-5).reverse();
+            const recentPurchases = purchases.slice(-5).reverse();
+
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Dashboard</h1>
+                            <p className="page-subtitle">Welcome back! Here's what's happening today.</p>
+                        </div>
+                    </div>
+
+                    <div className="alert alert-info">
+                        <span className="alert-icon">ℹ️</span>
+                        <div>
+                            <strong>DG Store ERP v1.0</strong><br/>
+                            <span style={{fontSize: '13px'}}>Complete business management system with Inventory, Sales, Purchases, CRM & Accounting</span>
+                        </div>
+                    </div>
+
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">💰</span>
+                                <span className="stat-trend trend-up">↑ 12%</span>
+                            </div>
+                            <div className="stat-label">Total Sales</div>
+                            <div className="stat-value">₹{totalSales.toFixed(0)}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">🛒</span>
+                            </div>
+                            <div className="stat-label">Total Purchases</div>
+                            <div className="stat-value">₹{totalPurchases.toFixed(0)}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">📈</span>
+                                <span className="stat-trend trend-up">↑ 8%</span>
+                            </div>
+                            <div className="stat-label">Gross Profit</div>
+                            <div className="stat-value" style={{color: 'var(--success)'}}>₹{grossProfit.toFixed(0)}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">📦</span>
+                            </div>
+                            <div className="stat-label">Products</div>
+                            <div className="stat-value">{totalProducts}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">⚠️</span>
+                            </div>
+                            <div className="stat-label">Low Stock</div>
+                            <div className="stat-value" style={{color: 'var(--warning)'}}>{lowStockItems}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">👥</span>
+                            </div>
+                            <div className="stat-label">Customers</div>
+                            <div className="stat-value">{customers.length}</div>
+                        </div>
+                    </div>
+
+                    {lowStockItems > 0 && (
+                        <div className="alert alert-warning">
+                            <span className="alert-icon">⚠️</span>
+                            <div>
+                                <strong>{lowStockItems} products are low in stock!</strong><br/>
+                                <span style={{fontSize: '13px'}}>Check inventory and place reorders soon.</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px'}}>
+                        <div className="card">
+                            <div className="card-title">Recent Sales</div>
+                            {recentSales.length > 0 ? (
+                                <div className="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Customer</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {recentSales.map(sale => (
+                                                <tr key={sale.id}>
+                                                    <td>{new Date(sale.date).toLocaleDateString()}</td>
+                                                    <td>{sale.customerName || 'Walk-in'}</td>
+                                                    <td><strong>₹{sale.total.toFixed(2)}</strong></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="empty-state" style={{padding: '40px 20px'}}>
+                                    <div className="empty-state-icon">💰</div>
+                                    <p className="empty-state-text">No sales yet</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="card">
+                            <div className="card-title">Recent Purchases</div>
+                            {recentPurchases.length > 0 ? (
+                                <div className="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Supplier</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {recentPurchases.map(purchase => (
+                                                <tr key={purchase.id}>
+                                                    <td>{new Date(purchase.date).toLocaleDateString()}</td>
+                                                    <td>{purchase.supplierName || 'N/A'}</td>
+                                                    <td><strong>₹{purchase.total.toFixed(2)}</strong></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="empty-state" style={{padding: '40px 20px'}}>
+                                    <div className="empty-state-icon">🛒</div>
+                                    <p className="empty-state-text">No purchases yet</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Products Component (Simplified for space)
+        function Products({ products, setProducts }) {
+            const [searchTerm, setSearchTerm] = useState('');
+            const [importStatus, setImportStatus] = useState('');
+
+            const filteredProducts = products.filter(p =>
+                p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                p.sku?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            const handleExcelImport = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                setImportStatus('📖 Reading Excel file...');
+
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        try {
+                            const data = new Uint8Array(event.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+                            const newProducts = [];
+                            let imported = 0, updated = 0, skipped = 0;
+
+                            jsonData.forEach((row, i) => {
+                                const product = {
+                                    sku: row.SKU || `AUTO-${Date.now()}-${i}`,
+                                    name: row.Name || '',
+                                    category: row.Category || 'General',
+                                    price: parseFloat(row.Price || row['Selling Price'] || 0),
+                                    costPrice: parseFloat(row['Cost Price'] || 0),
+                                    quantity: parseInt(row.Quantity || 0),
+                                    reorderLevel: parseInt(row['Reorder Level'] || 5),
+                                    unit: row.Unit || 'pcs'
+                                };
+
+                                if (!product.name) {
+                                    skipped++;
+                                    return;
+                                }
+
+                                const existingIndex = products.findIndex(p => p.sku === product.sku);
+                                if (existingIndex >= 0) {
+                                    products[existingIndex] = { ...products[existingIndex], ...product };
+                                    updated++;
+                                } else {
+                                    newProducts.push({ ...product, id: Date.now() + i });
+                                    imported++;
+                                }
+                            });
+
+                            setProducts([...products, ...newProducts]);
+                            setImportStatus(`✅ Done! Added: ${imported}, Updated: ${updated}, Skipped: ${skipped}`);
+                            setTimeout(() => setImportStatus(''), 5000);
+                        } catch (error) {
+                            setImportStatus('❌ Error: ' + error.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                } catch (error) {
+                    setImportStatus('❌ Error: ' + error.message);
+                }
+                e.target.value = '';
+            };
+
+            const handleExport = () => {
+                if (products.length === 0) {
+                    alert('No products to export');
+                    return;
+                }
+
+                const data = products.map(p => ({
+                    'SKU': p.sku,
+                    'Name': p.name,
+                    'Category': p.category,
+                    'Cost Price': p.costPrice,
+                    'Selling Price': p.price,
+                    'Quantity': p.quantity,
+                    'Reorder Level': p.reorderLevel,
+                    'Unit': p.unit
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Products');
+                XLSX.writeFile(wb, `Products-${new Date().toISOString().split('T')[0]}.xlsx`);
+            };
+
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Products ({products.length})</h1>
+                            <p className="page-subtitle">Manage inventory and stock levels</p>
+                        </div>
+                        <div className="page-actions">
+                            <div className="file-upload-wrapper">
+                                <input type="file" id="excel-import" accept=".xlsx,.xls" onChange={handleExcelImport} />
+                                <label htmlFor="excel-import" className="file-upload-label">📊 Import Excel</label>
+                            </div>
+                            <button className="btn btn-success" onClick={handleExport}>📤 Export</button>
+                        </div>
+                    </div>
+
+                    {importStatus && (
+                        <div className="alert alert-info">
+                            <span className="alert-icon">ℹ️</span>
+                            <div><strong>{importStatus}</strong></div>
+                        </div>
+                    )}
+
+                    <div style={{marginBottom: '24px'}}>
+                        <div className="search-bar">
+                            <span className="search-icon">🔍</span>
+                            <input
+                                type="text"
+                                className="search-input"
+                                placeholder="Search products by name or SKU..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        {filteredProducts.length > 0 ? (
+                            <>
+                                <div className="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>SKU</th>
+                                                <th>Name</th>
+                                                <th>Category</th>
+                                                <th>Cost Price</th>
+                                                <th>Selling Price</th>
+                                                <th>Quantity</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredProducts.map(p => (
+                                                <tr key={p.id}>
+                                                    <td><code>{p.sku}</code></td>
+                                                    <td><strong>{p.name}</strong></td>
+                                                    <td>{p.category}</td>
+                                                    <td>₹{p.costPrice?.toFixed(2) || 0}</td>
+                                                    <td>₹{p.price?.toFixed(2) || 0}</td>
+                                                    <td><strong>{p.quantity}</strong></td>
+                                                    <td>
+                                                        {p.quantity === 0 ? (
+                                                            <span className="badge badge-danger">Out of Stock</span>
+                                                        ) : p.quantity <= (p.reorderLevel || 5) ? (
+                                                            <span className="badge badge-warning">Low Stock</span>
+                                                        ) : (
+                                                            <span className="badge badge-success">In Stock</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style={{padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px'}}>
+                                    Showing {filteredProducts.length} of {products.length} products
+                                </div>
+                            </>
+                        ) : (
+                            <div className="empty-state">
+                                <div className="empty-state-icon">📦</div>
+                                <p className="empty-state-title">No Products Found</p>
+                                <p className="empty-state-text">Start by importing products from Excel or add them manually</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Placeholder components for other modules
+        function Sales({ products, sales, setSales, setProducts, customers }) {
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Sales ({sales.length})</h1>
+                            <p className="page-subtitle">Record and manage sales transactions</p>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">💰</div>
+                            <p className="empty-state-title">Sales Module</p>
+                            <p className="empty-state-text">POS system with invoicing - Coming in full version</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Purchases({ products, purchases, setPurchases, setProducts, suppliers }) {
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Purchases ({purchases.length})</h1>
+                            <p className="page-subtitle">Track inventory purchases and suppliers</p>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">🛒</div>
+                            <p className="empty-state-title">Purchase Module</p>
+                            <p className="empty-state-text">Purchase orders and supplier management - Coming in full version</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Customers({ customers, setCustomers, sales }) {
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Customers ({customers.length})</h1>
+                            <p className="page-subtitle">Customer relationship management</p>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">👥</div>
+                            <p className="empty-state-title">CRM Module</p>
+                            <p className="empty-state-text">Customer database and credit management - Coming in full version</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Suppliers({ suppliers, setSuppliers, purchases }) {
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Suppliers ({suppliers.length})</h1>
+                            <p className="page-subtitle">Supplier database and payment tracking</p>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">🏭</div>
+                            <p className="empty-state-title">Supplier Module</p>
+                            <p className="empty-state-text">Supplier management and payment tracking - Coming in full version</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Accounts({ sales, purchases, expenses, setExpenses }) {
+            const totalIncome = sales.reduce((sum, s) => sum + s.total, 0);
+            const totalExpenses = purchases.reduce((sum, p) => sum + p.total, 0) + expenses.reduce((sum, e) => sum + e.amount, 0);
+            const netProfit = totalIncome - totalExpenses;
+
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Accounts</h1>
+                            <p className="page-subtitle">Financial overview and management</p>
+                        </div>
+                    </div>
+
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">💰</span>
+                            </div>
+                            <div className="stat-label">Total Income</div>
+                            <div className="stat-value" style={{color: 'var(--success)'}}>₹{totalIncome.toFixed(0)}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">💸</span>
+                            </div>
+                            <div className="stat-label">Total Expenses</div>
+                            <div className="stat-value" style={{color: 'var(--danger)'}}>₹{totalExpenses.toFixed(0)}</div>
+                        </div>
+                        
+                        <div className="stat-card">
+                            <div className="stat-header">
+                                <span className="stat-icon">📊</span>
+                            </div>
+                            <div className="stat-label">Net Profit</div>
+                            <div className="stat-value" style={{color: netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}}>
+                                ₹{netProfit.toFixed(0)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">💵</div>
+                            <p className="empty-state-title">Accounting Module</p>
+                            <p className="empty-state-text">Detailed financial tracking and reports - Coming in full version</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Reports({ products, sales, purchases, expenses }) {
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Reports & Analytics</h1>
+                            <p className="page-subtitle">Business insights and performance metrics</p>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">📈</div>
+                            <p className="empty-state-title">Reports Module</p>
+                            <p className="empty-state-text">Advanced analytics and visual reports - Coming in full version</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Backup({ products, sales, purchases, customers, suppliers, expenses, setProducts, setSales, setPurchases, setCustomers, setSuppliers, setExpenses }) {
+            const [status, setStatus] = useState('');
+
+            const exportAll = () => {
+                const wb = XLSX.utils.book_new();
+
+                if (products.length > 0) {
+                    const ws = XLSX.utils.json_to_sheet(products.map(p => ({
+                        SKU: p.sku, Name: p.name, Category: p.category,
+                        'Cost Price': p.costPrice, 'Selling Price': p.price,
+                        Quantity: p.quantity, Unit: p.unit
+                    })));
+                    XLSX.utils.book_append_sheet(wb, ws, 'Products');
+                }
+
+                if (sales.length > 0) {
+                    const ws = XLSX.utils.json_to_sheet(sales.map(s => ({
+                        Date: new Date(s.date).toLocaleString(),
+                        Customer: s.customerName,
+                        Total: s.total,
+                        Payment: s.paymentMethod
+                    })));
+                    XLSX.utils.book_append_sheet(wb, ws, 'Sales');
+                }
+
+                if (purchases.length > 0) {
+                    const ws = XLSX.utils.json_to_sheet(purchases.map(p => ({
+                        Date: new Date(p.date).toLocaleString(),
+                        Supplier: p.supplierName,
+                        Total: p.total,
+                        Payment: p.paymentStatus
+                    })));
+                    XLSX.utils.book_append_sheet(wb, ws, 'Purchases');
+                }
+
+                XLSX.writeFile(wb, `DG-Store-Backup-${new Date().toISOString().split('T')[0]}.xlsx`);
+                setStatus('✅ Backup exported successfully!');
+                setTimeout(() => setStatus(''), 3000);
+            };
+
+            return (
+                <div>
+                    <div className="page-header">
+                        <div className="page-title-section">
+                            <h1 className="page-title">Backup & Restore</h1>
+                            <p className="page-subtitle">Protect your business data</p>
+                        </div>
+                    </div>
+
+                    {status && (
+                        <div className="alert alert-success">
+                            <span className="alert-icon">✅</span>
+                            <div><strong>{status}</strong></div>
+                        </div>
+                    )}
+
+                    <div className="card">
+                        <div className="card-title">📦 Export Complete Backup</div>
+                        <p style={{marginBottom: '20px', color: 'var(--text-muted)'}}>
+                            Download all your data (Products, Sales, Purchases) in Excel format
+                        </p>
+                        <button className="btn btn-success" onClick={exportAll}>
+                            💾 Export All Data
+                        </button>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-title">💡 Best Practices</div>
+                        <ul style={{paddingLeft: '20px', color: 'var(--text-muted)'}}>
+                            <li style={{marginBottom: '8px'}}>Take weekly backups of your data</li>
+                            <li style={{marginBottom: '8px'}}>Store backups in multiple locations (Google Drive, USB)</li>
+                            <li style={{marginBottom: '8px'}}>Keep backup files organized with dates</li>
+                            <li>Test restore process periodically</li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
